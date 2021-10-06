@@ -1,6 +1,6 @@
 package com.example.pokedex.infra.pokeapi.entity
 
-data class PokemonListElement (
+data class PokemonListElement(
     val name: String,
     val url: String
 )
