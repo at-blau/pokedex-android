@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedex.databinding.ItemPokemonListBinding
 import com.example.pokedex.infra.pokeapi.entity.PokemonListElement
 
-class PokemonListAdapter: RecyclerView.Adapter<PokemonListAdapter.ViewHolder>() {
+class PokemonListAdapter(private val onClickPokemonListener: (PokemonListElement) -> Unit): RecyclerView.Adapter<PokemonListAdapter.ViewHolder>() {
     var pokemonList: List<PokemonListElement> = emptyList()
         set(value) {
             field = value
@@ -16,6 +16,9 @@ class PokemonListAdapter: RecyclerView.Adapter<PokemonListAdapter.ViewHolder>() 
     inner class ViewHolder(private val binding: ItemPokemonListBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(pokemon: PokemonListElement) {
             binding.pokemonName.text = pokemon.name
+            binding.root.setOnClickListener {
+                onClickPokemonListener(pokemon)
+            }
         }
     }
 

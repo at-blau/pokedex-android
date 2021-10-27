@@ -7,7 +7,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pokedex.R
 import com.example.pokedex.databinding.PokemonListFragmentBinding
@@ -20,7 +22,6 @@ class PokemonListFragment : Fragment() {
     }
 
     private lateinit var viewModel: PokemonListViewModel
-    private val adapter = PokemonListAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,25 +32,27 @@ class PokemonListFragment : Fragment() {
             container,
             false
         )
+
+        val adapter = PokemonListAdapter { pokemonListElement ->
+            val action = PokemonListFragmentDirections.actionPokemonListFragmentToPokemonDetailFragment(pokemonListElement.name)
+            findNavController().navigate(action)
+        }
+
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
+
+        viewModel = ViewModelProvider(this).get(PokemonListViewModel::class.java)
+
+        viewModel.pokemonList.observe(viewLifecycleOwner, {
+            adapter.pokemonList = it
+        })
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launchWhenStarted {
-            PokeApi.retrofitService.getPokemon().body()?.let {
-                adapter.pokemonList = it.results
-            }
-        }
+        viewModel.onViewCreated()
     }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(PokemonListViewModel::class.java)
-        // TODO: Use the ViewModel
-    }
-
 }
